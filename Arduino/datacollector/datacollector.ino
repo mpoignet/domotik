@@ -37,7 +37,7 @@ void setup(void)
    // Open serial communications and wait for port to open:
   Serial.begin(9600);
   
-  emon1.current(1, 53.5);             // Current: input pin, calibration.
+  emon1.current(1, 66.6);             // Current: input pin, calibration.
 
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
@@ -125,7 +125,7 @@ void loop(void)
 	//else ghost device! Check your power requirements and cabling
 	
   }
-  delay(10000);
+  delay(100);
   Serial.println(":");
   Serial.println(":");
   Serial.println(":");
@@ -151,7 +151,7 @@ void loop(void)
           client.println("HTTP/1.1 200 OK");
           client.println("Content-Type: text/json");
           client.println("Connection: close");  // the connection will be closed after completion of the response
-	  client.println("Refresh: 5");  // refresh the page automatically every 5 sec
+	  //client.println("Refresh: 5");  // refresh the page automatically every 5 sec
           client.println();
 
           client.print("{");
