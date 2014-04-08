@@ -1,18 +1,10 @@
-
-
-/******************************************
-	PURPOSE:	DS18B20 test sketch for Arduino
-	Created by      Sam Leong
-	Website:	www.b2cqshop.com
-	DATE:		2013/7/20
-*******************************************/
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include <Time.h>
-
-//-----------------------
+#include "EmonLib.h"                   // Include Emon Library
 #include <SPI.h>
 #include <Ethernet.h>
+
+EnergyMonitor emon1;                   // Create an instance
 
 // Enter a MAC address and IP address for your controller below.
 // The IP address will be dependent on your local network:
@@ -26,8 +18,8 @@ IPAddress ip(192,168,2,77);
 EthernetServer server(88);
 //------------------------------------
 
-// Data wire is plugged into port 3 on the Arduino
-#define ONE_WIRE_BUS 3
+// Data wire is plugged into port 2 on the Arduino
+#define ONE_WIRE_BUS 2
 #define TEMPERATURE_PRECISION 12
 
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
@@ -42,20 +34,10 @@ DeviceAddress tempDeviceAddress; // We'll use this variable to store a found dev
 
 void setup(void)
 {
-  
-
-  //-----------------
-  
    // Open serial communications and wait for port to open:
   Serial.begin(9600);
-   while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-  }
   
-  while(timeStatus() != timeNotSet){
-   delay(1000);
-  } 
-
+  emon1.current(1, 53.5);             // Current: input pin, calibration.
 
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
@@ -63,11 +45,7 @@ void setup(void)
   Serial.print("server is at ");
   Serial.println(Ethernet.localIP());
   
-  //----------------------------------------
-  
-  
   // start serial port
-
   Serial.println("Dallas Temperature IC Control Library Demo");
 
   // Start up the library
@@ -78,7 +56,6 @@ void setup(void)
   
   // locate devices on the bus
   Serial.print("Locating devices...");
-  
   Serial.print("Found ");
   Serial.print(numberOfDevices, DEC);
   Serial.println(" devices.");
@@ -126,7 +103,11 @@ void loop(void)
   Serial.print("Requesting temperatures...");
   sensors.requestTemperatures(); // Send the command to get temperatures
   Serial.println("DONE");
-  
+  Serial.print("Requesting current...");
+  double Irms = emon1.calcIrms(1480);  // Calculate Irms only
+  Serial.println("DONE");
+  //String IrmsString = String(Irms);
+  Serial.println(Irms);
   
   // Loop through each device, print out temperature data
   for(int i=0;i<numberOfDevices; i++)
@@ -172,53 +153,31 @@ void loop(void)
           client.println("Connection: close");  // the connection will be closed after completion of the response
 	  client.println("Refresh: 5");  // refresh the page automatically every 5 sec
           client.println();
-          //client.println("<!DOCTYPE HTML>");
-          //client.println("<html>");
-          
-            //client.print("<img src= http://www.oasisgranada.com/system/hostels/logos/3/original/granada.png?1341253407>");
-            //client.println("<br />");
-            //client.print("Temperature ");
-            //client.print(" is ");
-            //client.print(temperatura);
-            //client.print(" celsius degrees ");
-            //client.println("<br />"); 
-            client.print("{");
-            int arduinoTime = hour();
-            client.print("\"date\":\""); 
-             client.print(arduinoTime);   
-           client.print("\",");   
-          
-          //1111111
+
+          client.print("{");
+          client.print("\"date\":0,"); 
+          client.print("\"c\":"); 
+          client.print(Irms);
+          client.print(",");
           
           for(int i=0;i<numberOfDevices; i++)
           {
             // Search the wire for address
             if(sensors.getAddress(tempDeviceAddress, i))
         	{
-        		// Output the device ID
-        		//client.print("Temperature for device: ");
                         client.print("\"");
         		client.print(i,DEC);
-                        //client.print(" is ");
-                        client.print("\":\"");
+                        client.print("\":");
         		float tempC = sensors.getTempC(tempDeviceAddress);
                         client.print(tempC);
-                        //client.println("<br />");
-                        client.print("\"");
                         if(i<numberOfDevices-1){
                           client.print(",");
                         }
-        
-        
-        		// It responds almost immediately. Let's print out the data
-        		//printTemperature(tempDeviceAddress); // Use a simple function to print out the data
         	} 
         	//else ghost device! Check your power requirements and cabling
-        	
           }
           
           client.print("}");
-          //client.println("</html>");
           break;
         }
         if (c == '\n') {
@@ -236,9 +195,6 @@ void loop(void)
     // close the connection:
     client.stop();
     Serial.println("client disonnected");
-    
-
-    
   }
 
   //-----------------------------------------
