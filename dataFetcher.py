@@ -13,6 +13,8 @@ jsonContent = urllib2.urlopen("http://192.168.2.77:88/").read()
 measures = json.loads(jsonContent)   
 measures["date"] = datetime.datetime.now()  
 
+print(measures["m"])
+
 #Converting data types to please the db
 measures["date"] = measures["date"].strftime('%Y-%m-%d %H:%M:%S')
 

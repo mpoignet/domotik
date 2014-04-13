@@ -1,8 +1,9 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include "EmonLib.h"                   // Include Emon Library
+#include "EmonLib.h"                   
 #include <SPI.h>
 #include <Ethernet.h>
+#include <MemoryFree.h>
 
 EnergyMonitor emon1;                   // Create an instance
 
@@ -30,6 +31,8 @@ DallasTemperature sensors(&oneWire);
 
 int numberOfDevices; // Number of temperature devices found
 
+int nbConnexions;
+
 DeviceAddress tempDeviceAddress; // We'll use this variable to store a found device address
 
 void setup(void)
@@ -38,6 +41,8 @@ void setup(void)
   Serial.begin(9600);
   
   emon1.current(1, 66.6);             // Current: input pin, calibration.
+  
+  nbConnexions = 0;
 
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
@@ -125,6 +130,7 @@ void loop(void)
 	//else ghost device! Check your power requirements and cabling
 	
   }
+  
   delay(100);
   Serial.println(":");
   Serial.println(":");
@@ -136,6 +142,7 @@ void loop(void)
   // listen for incoming clients
   EthernetClient client = server.available();
   if (client) {
+    nbConnexions++;
     Serial.println("new client");
     // an http request ends with a blank line
     boolean currentLineIsBlank = true;
@@ -158,6 +165,11 @@ void loop(void)
           client.print("\"date\":0,"); 
           client.print("\"c\":"); 
           client.print(Irms);
+          client.print(",");
+          
+          int mem = freeMemory();
+          client.print("\"m\":"); 
+          client.print(mem);
           client.print(",");
           
           for(int i=0;i<numberOfDevices; i++)
@@ -195,9 +207,20 @@ void loop(void)
     // close the connection:
     client.stop();
     Serial.println("client disonnected");
+    if(nbConnexions > 240){
+      software_Reset();
+    }
   }
+  
+  
 
   //-----------------------------------------
   
 }
+
+
+void software_Reset() // Restarts program from beginning but does not reset the peripherals and registers
+  {
+    asm volatile ("  jmp 0");  
+  } 
 
