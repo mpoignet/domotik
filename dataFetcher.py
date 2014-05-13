@@ -31,11 +31,12 @@ while(True):
 		log('ERROR: Server is unreachable')
 		time.sleep(15)
 
+    
 	if(jsonContent):
 		try:
 			measures = json.loads(jsonContent)   
 			measures["date"] = datetime.datetime.now()  
-			goodReading = True;
+			goodReading = True
 			log('Measures: '+str(measures))
 
 			#Checking the data 
@@ -44,7 +45,7 @@ while(True):
 					goodReading=False
 		except:
 			log('ERROR: Parsing exception')
-			break;
+			goodReading = False
 
 		if(goodReading):
 			#Converting data types to please the db
