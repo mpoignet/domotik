@@ -1,0 +1,9 @@
+{% if latest_temperatures_list %}
+    <ul>
+    {% for t in latest_temperatures_list %}
+        <li>{{ t.date }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No temperatures are available.</p>
+{% endif %}
