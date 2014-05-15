@@ -41,7 +41,7 @@ while(True):
 
 			#Checking the data 
 			for p in measures.keys():
-				if(measures[p]==85):
+				if( p!='date' and ((measures[p] > 84) or (measures[p] < -20))):
 					goodReading=False
 		except:
 			log('ERROR: Parsing exception')
