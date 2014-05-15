@@ -82,7 +82,7 @@ void loop(void){
             Serial.print("Found device ");
             Serial.print(i, DEC);
             Serial.print(" with address: ");
-            printAddress(tempDeviceAddress);
+            printAddressToSerial(tempDeviceAddress);
             Serial.println();
 
             Serial.print("Setting resolution to ");
@@ -117,12 +117,12 @@ void loop(void){
         // Search the wire for address
         if(sensors.getAddress(tempDeviceAddress, i)){
             // Output the device ID
-            Serial.print("Temperature for device: ");
-            Serial.println(i,DEC);
+            Serial.print("Temperature for device ");
+            printAddressToSerial(tempDeviceAddress);
+            Serial.print(": ");
             // It responds almost immediately. Let's print out the data
             float tempC = sensors.getTempC(tempDeviceAddress);
-            Serial.print("Temp C: ");
-            Serial.print(tempC);
+            Serial.println(tempC);
         } 
     }
 delay(100);
@@ -164,7 +164,7 @@ Serial.println(":");
                         // Search the wire for address
                         if(sensors.getAddress(tempDeviceAddress, i)){
                             client.print("\"");
-                            client.print(i,DEC);
+                            printAddressToClient(tempDeviceAddress, client);
                             client.print("\":");
                             float tempC = sensors.getTempC(tempDeviceAddress);
                             client.print(tempC);
