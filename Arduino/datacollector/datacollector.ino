@@ -155,10 +155,9 @@ Serial.println(":");
                     client.println("Connection: close");  // the connection will be closed after completion of the response
                     client.println();
                     client.print("{");
-                    client.print("\"date\":0,"); 
-                    client.print("\"c\":"); 
-                    client.print(Irms);
-                    client.print(",");
+                    //client.print("\"c\":"); 
+                    //client.print(Irms);
+                    //client.print(",");
 
                     for(int i=0;i<numberOfDevices; i++){
                         // Search the wire for address

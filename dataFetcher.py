@@ -70,6 +70,6 @@ if(jsonContent):
 			db.rollback()
 		  
 		db.close()	
-		time.sleep(15)				
+		#time.sleep(15)				
 
 

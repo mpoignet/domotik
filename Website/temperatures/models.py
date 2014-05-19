@@ -19,8 +19,10 @@ from django.db import models
 
 
 class Device(models.Model):
-    def __unicode__(self):  
-        return self.address + self.name
+    def __unicode__(self):
+        if(self.name):  
+            return self.name
+        return self.address
 
     DEVICE_TYPE_CHOICES = (
         ('TH', 'Thermometer'),

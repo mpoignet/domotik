@@ -1,11 +1,14 @@
 from django.contrib import admin
-from temperatures.models import Data
+from temperatures.models import Device, Record
 
 # Register your models here.
 
-class DataAdmin(admin.ModelAdmin):
-    readonly_fields = ('date','t0','t1','t2','t3','t4','c0')
-    list_display = ('date','t0','t1','t2','t3','t4','c0')
+class RecordAdmin(admin.ModelAdmin):
+    readonly_fields = ('date', 'measure')
+
+class DeviceAdmin(admin.ModelAdmin):
+    readonly_fields = ('address', 'dType')
 
 
-admin.site.register(Data, DataAdmin)
+admin.site.register(Record, RecordAdmin)
+admin.site.register(Device, DeviceAdmin)
