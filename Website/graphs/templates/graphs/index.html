@@ -25,7 +25,7 @@ body {
 
 </style>
 <body>
-  <form id='dateForm'>
+  <form id='dataForm'>
   Start Date: 
 
   <select id="startDate_Hour">
@@ -240,8 +240,18 @@ function drawGraph(startDate, endDate){
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var url='http://localhost:8000/temperatures/?startDate='+startDate+'&endDate='+endDate;
-  //var url='http://localhost:8000/temperatures/';
+  var url='http://localhost:8000/temperatures/?';
+  if(startDate){
+    url = url+'startDate='+startDate+'&';
+  }
+  if(endDate){
+    url = url + 'endDate='+endDate+'&';
+  }
+  if(devices){
+    for(var i in devices){
+      url = url + 'sensors='+devices[i]+'&';
+    }
+  }
 
   d3.json(url, function(data) {
     sensors = data.sensors
@@ -253,23 +263,6 @@ function drawGraph(startDate, endDate){
         sensors[sensorIndex].values[d].date = parseDate(sensors[sensorIndex].values[d].date);
       }
     }
-
-    // data.forEach(function(sensor) {
-
-    //   sensor.forEach(function(d) {
-    //     d.date = parseDate(d.date);
-    //   });
-      
-    // });
-
-    // var cities = color.domain().map(function(name) {
-    //   return {
-    //     name: name,
-    //     values: data.map(function(d) {
-    //       return {date: d.date, temperature: +d[name]};
-    //     })
-    //   };
-    // });
 
     x.domain(d3.extent(sensors, function(d) {
      return d.date; 
@@ -323,7 +316,7 @@ function drawGraph(startDate, endDate){
 }
 
 
-function processForm(e) {
+function displayData(e) {
     if (e.preventDefault) e.preventDefault();
 
     startHour = document.getElementById("startDate_Hour").value
@@ -338,18 +331,43 @@ function processForm(e) {
 
     startDate = startYear+'-'+startMonth+'-'+startDay+' '+startHour+':0:0'
     endDate = endYear+'-'+endMonth+'-'+endDay+' '+endHour+':0:0'
-    drawGraph(startDate, endDate)
+
+    devices = [];
+    elems = document.getElementById('deviceList').children
+    for(var i in elems){
+      if(elems[i].tagName == 'INPUT' && elems[i].checked){
+        devices.push(elems[i].value)
+      }
+    }
+
+    drawGraph(startDate, endDate, devices)
 
     // You must return false to prevent the default form behavior
     return false;
 }
 
-var form = document.getElementById('dateForm');
-if (form.attachEvent) {
-    form.attachEvent("submit", processForm);
-} else {
-    form.addEventListener("submit", processForm);
+function populateDeviceList() {
+  d3.json('http://localhost:8000/temperatures/list', function(data) {
+    sensors = data.sensors;
+    div = document.createElement('div')
+    div.setAttribute('id','deviceList')
+    deviceList = document.getElementById('dataForm').appendChild(div);
+    for(var i in sensors){
+      deviceList.innerHTML = deviceList.innerHTML + '<br><input type="checkbox" name="device" value="'+sensors[i].id+'">'+sensors[i].name;
+    }
+  });
 }
+
+populateDeviceList(); 
+
+var form = document.getElementById('dataForm');
+if (form.attachEvent) {
+    form.attachEvent("submit", displayData);
+} else {
+    form.addEventListener("submit", displayData);
+}
+
+//drawGraph()
 
 
 
