@@ -23,12 +23,13 @@ def list(request):
 
         s['values'] = []
         records = Record.objects.filter(device_id=sensor['id']).filter(date__gte=startDate).filter(date__lte=endDate)
-        #nbRecord = 25000
-        #if(records.count()>=nbRecord):
-        #    records = records.order_by('date')[records.count()-nbRecord:records.count()].values()
-        for record in records:
-            dateString = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
-            s['values'].append({'date': dateString, 'temperature': record.measure})
-        sensors.append(s)   
+        if(len(records) > 0):
+            #nbRecord = 25000
+            #if(records.count()>=nbRecord):
+            #    records = records.order_by('date')[records.count()-nbRecord:records.count()].values()
+            for record in records:
+                dateString = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
+                s['values'].append({'date': dateString, 'temperature': record.measure})
+            sensors.append(s)   
 
     return HttpResponse(json.dumps({'sensors': sensors}), content_type="application/json")
