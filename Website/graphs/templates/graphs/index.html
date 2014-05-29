@@ -197,12 +197,15 @@ body {
 
   </br>
   <input type="submit" value="Submit"> 
+  <input type="checkbox" id="csv" value="csv"> get CSV file
   </form>
 </body>
 <script src="http://d3js.org/d3.v3.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+
 <script>
 
-function drawGraph(startDate, endDate){
+function drawGraph(url){
 
   graph = document.getElementById("graph");
   if(graph) graph.remove();
@@ -240,18 +243,7 @@ function drawGraph(startDate, endDate){
     .append("g")
       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  var url='http://localhost:8000/temperatures/?';
-  if(startDate){
-    url = url+'startDate='+startDate+'&';
-  }
-  if(endDate){
-    url = url + 'endDate='+endDate+'&';
-  }
-  if(devices){
-    for(var i in devices){
-      url = url + 'sensors='+devices[i]+'&';
-    }
-  }
+  
 
   d3.json(url, function(data) {
     sensors = data.sensors
@@ -291,7 +283,7 @@ function drawGraph(startDate, endDate){
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("Temperature (ºF)");
+        .text("Temperature (ºC)");
 
     var sensor = svg.selectAll(".sensor")
         .data(sensors)
@@ -340,9 +332,36 @@ function displayData(e) {
       }
     }
 
-    drawGraph(startDate, endDate, devices)
+    var url='http://localhost:8000/temperatures/?';
+    if(startDate){
+      url = url+'startDate='+startDate+'&';
+    }
+    if(endDate){
+      url = url + 'endDate='+endDate+'&';
+    }
+    if(devices){
+      for(var i in devices){
+        url = url + 'sensors='+devices[i]+'&';
+      }
+    }
 
-    // You must return false to prevent the default form behavior
+    
+
+    csv = document.getElementById("csv").checked
+    if(csv){
+      csvUrl = url+'output=csv';
+      window.location = csvUrl;
+      // $.ajax({
+      //   url: csvUrl,
+      //   type: 'GET',
+      //   success: function() {
+      //       window.location = csvUrl;
+      //   }
+      // });
+    }else{
+      drawGraph(url)
+    }
+
     return false;
 }
 
