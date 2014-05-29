@@ -1,15 +1,15 @@
 from django.shortcuts import render
 from django.template import RequestContext, loader
 from django.http import HttpResponse
-from temperatures.models import Device, Record
+from temperatures.models import Sensor, Record
 from django.core import serializers
 import json
 import datetime
 
 # Create your views here.
 
-def getList(request):
-    sensorList = Device.objects.all().values()
+def getSensorList(request):
+    sensorList = Sensor.objects.all().values()
     sensors = []
     for sensor in sensorList:
         s={}
@@ -22,12 +22,12 @@ def getList(request):
     return HttpResponse(json.dumps({'sensors': sensors}), content_type="application/json")
 
 
-def getData(request):
-    sensorList = request.GET.getlist('sensors', [])
+def getSensorData(request):
+    sensorList = request.GET.getlist('sensors', []) 
     if(sensorList):
-        sensorList = Device.objects.filter(pk__in=sensorList).values()
+        sensorList = Sensor.objects.filter(pk__in=sensorList).values()
     else:
-        sensorList = Device.objects.all().values()
+        sensorList = Sensor.objects.all().values()
     startDate = request.GET.get('startDate', '')
     endDate = request.GET.get('endDate', '')
 
@@ -40,11 +40,11 @@ def getData(request):
             s['name'] = sensor['name']
         s['values'] = []
         if(startDate and endDate):
-            records = Record.objects.filter(device_id=sensor['id']).filter(date__gte=startDate).filter(date__lte=endDate)
+            records = Record.objects.filter(sensor_id=sensor['id']).filter(date__gte=startDate).filter(date__lte=endDate)
         elif(startDate):
-            records = Record.objects.filter(device_id=sensor['id']).filter(date__gte=startDate)
+            records = Record.objects.filter(sensor_id=sensor['id']).filter(date__gte=startDate)
         else:
-            records = Record.objects.filter(device_id=sensor['id'])
+            records = Record.objects.filter(sensor_id=sensor['id'])
             records = records.order_by('-date')[0:250]
         print startDate
         print endDate
@@ -55,5 +55,3 @@ def getData(request):
             sensors.append(s)   
 
     return HttpResponse(json.dumps({'sensors': sensors}), content_type="application/json")
-
-
