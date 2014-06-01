@@ -7,6 +7,7 @@ from collections import OrderedDict
 import json
 import csv
 import datetime
+import calendar
 
 # Create your views here.
 
@@ -32,12 +33,21 @@ def getSensorData(request):
         sensorList = Sensor.objects.all().values()
     startDate = request.GET.get('startDate', '')
     endDate = request.GET.get('endDate', '')
+    
     output = request.GET.get('output', 'json')
     if(output=='csv'):
         return returnCSV(sensorList, startDate, endDate)
+    if(output=='flot'):
+        return returnFlot(sensorList, startDate, endDate)
+    if(output=='morris'):
+        return returnMorris(sensorList, startDate, endDate)
     return returnJson(sensorList, startDate, endDate)
 
 def getRecords(sensorId, startDate, endDate):
+    if(startDate):
+        startDate = datetime.datetime.fromtimestamp(int(startDate)).strftime('%Y-%m-%d %H:%M:%S')
+    if(endDate): 
+        endDate = datetime.datetime.fromtimestamp(int(endDate)).strftime('%Y-%m-%d %H:%M:%S')
     records = []
     if(startDate and endDate):
         records = Record.objects.filter(sensor_id=sensorId).filter(date__gte=startDate).filter(date__lte=endDate)
@@ -47,6 +57,52 @@ def getRecords(sensorId, startDate, endDate):
         records = Record.objects.filter(sensor_id=sensorId)
         records = records.order_by('-date')[0:250]
     return records
+
+def returnMorris(sensorList, startDate, endDate):
+    sensors = []
+    dates = {};
+    for sensor in sensorList:
+        if(not sensor['name']):
+            sensorName = str(sensor['address'])
+        else:
+            sensorName = sensor['name']
+        records = getRecords(sensor['id'], startDate, endDate)
+        if(len(records) > 0):
+            sensors.append(sensorName)
+            for record in records:
+                dateString = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
+                if(not dateString in dates):
+                   dates[dateString] = {}
+                dates[dateString][sensorName] = record.measure 
+
+    elements = []
+    for date in dates:
+        element = {'date': date}
+        for sensor in dates[date]:
+            element[sensor] = dates[date][sensor]
+        elements.append(element)
+
+    return HttpResponse(json.dumps({'mElements': elements}), content_type="application/json")
+
+
+def returnFlot(sensorList, startDate, endDate):
+    sensors = []
+    for sensor in sensorList:
+        s={}
+        if(not sensor['name']):
+            s['name'] = str(sensor['address'])
+        else:
+            s['name'] = sensor['name']
+        s['values'] = []
+        records = getRecords(sensor['id'], startDate, endDate)
+        if(len(records) > 0):
+            for record in records:
+                # javascript timestamps are in ms, unix timestamp in s, hence the *1000
+                timestamp = calendar.timegm(record.date.timetuple())*1000
+                s['values'].append((timestamp, record.measure))
+            sensors.append(s)   
+
+    return HttpResponse(json.dumps({'sensors': sensors}), content_type="application/json")
 
     
 def returnJson(sensorList, startDate, endDate):
