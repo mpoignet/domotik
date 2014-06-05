@@ -8,4 +8,138 @@
     </div>
     <!-- /.col-lg-12 -->
 </div>
+
+</div>
 {% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function() {
+        var roomTemplate = '<div class="col-lg-3"> \
+                                <div class="panel panel-default" id="room-panel"> \
+                                  <div class="panel-heading"> \
+                                    <h3 class="panel-title text-center">Room a</h3> \
+                                  </div> \
+                                  <div class="panel-body"> \
+                                    <p class="text-center"> \
+                                        <span>Temperature control is</span> \
+                                        <button type="button" class="btn btn-success btn-xs" name="on-btn"><b>ON</b></button></br> \
+                                    </p> \
+                                    <p class="text-center"> \
+                                        <span>Temperature desired is</span> \
+                                        <button type="button" class="btn btn-success btn-xs" name="t-minus-btn"><b>-</b></button> \
+                                        <span class="label label-default" style="font-size:small;" name="temperature-label">20</span> \
+                                        <button type="button" class="btn btn-danger btn-xs" name="t-plus-btn"><b>+</b></button></br> \
+                                    </p> \
+                                    <p class="text-center" style="font-size: x-large" name="last-temperature-label">21.08°C</p> \
+                                    <p class="text-center" name="last-measure-label"><i>latest measure: 2s ago</i></p> \
+                                  </div> \
+                                </div> \
+                            </div>';
+
+        function timeDifference(current, previous) {
+            var msPerMinute = 60 * 1000;
+            var msPerHour = msPerMinute * 60;
+            var msPerDay = msPerHour * 24;
+            var msPerMonth = msPerDay * 30;
+            var msPerYear = msPerDay * 365;
+
+            var elapsed = current - previous;
+
+            if (elapsed < msPerMinute) {
+                 return Math.round(elapsed/1000) + ' seconds ago';   
+            }
+            else if (elapsed < msPerHour) {
+                 return Math.round(elapsed/msPerMinute) + ' minutes ago';   
+            }
+            else if (elapsed < msPerDay ) {
+                 return Math.round(elapsed/msPerHour ) + ' hours ago';   
+            }
+            else if (elapsed < msPerMonth) {
+                return Math.round(elapsed/msPerDay) + ' days ago';   
+            }
+            else if (elapsed < msPerYear) {
+                return Math.round(elapsed/msPerMonth) + ' months ago';   
+            }
+            else {
+                return Math.round(elapsed/msPerYear ) + ' years ago';   
+            }
+        }
+        function bindOnButton(btn, id){
+            btn.click(function(){
+                $.post( 'http://localhost:8000/temperatures/rooms/toggle', {id: id} )
+                .done(function(data){
+                    if(btn.hasClass('btn-success')){
+                        btn.removeClass('btn-success').addClass('btn-danger').html('<b>OFF</b>');
+                    }else{
+                        btn.removeClass('btn-danger').addClass('btn-success').html('<b>ON</b>');
+                    }
+                });
+            });
+            
+        }
+        function bindMinusButton(btn, id){
+            btn.click(function(){
+                $.post( 'http://localhost:8000/temperatures/rooms/addToTemperature', {id: id, t: -1} )
+                .done(function(data){
+                    btn.parent().find('[name=temperature-label]').text(data+'°C');
+                });
+            });
+            
+        }
+        function bindPlusButton(btn, id){
+            btn.click(function(){
+                $.post( 'http://localhost:8000/temperatures/rooms/addToTemperature', {id: id, t: 1} )
+                .done(function(data){
+                    btn.parent().find('[name=temperature-label]').text(data+'°C');
+                });
+            });
+            
+        }
+        function populateRoomList(){
+            $.getJSON('http://localhost:8000/temperatures/rooms', function(data) {
+                var rooms = data.rooms;
+                var rows = []
+                var row = $('<div class="row"></div>');
+                var j=0;
+                for(var i in rooms){
+                    var roomId = rooms[i].id;
+                    var roomName = rooms[i].name;
+                    var roomTemperature = rooms[i].temperature;
+                    var roomControlled = rooms[i].isControlled;
+                    var lastMeasure = rooms[i].lastMeasure;
+                    if(j==4){
+                        j=0;
+                        rows.push(row);
+                        row = $('<div class="row"></div>');
+                    }
+                    var room = $(roomTemplate);
+                    room.find('h3').text(roomName);
+                    var onButton = room.find('[name=on-btn]');
+                    if(!roomControlled){
+                        onButton.removeClass('btn-success').addClass('btn-danger').html('<b>OFF</b>');
+                    }
+                    room.find('[name=temperature-label]').text(roomTemperature+'°C');
+                    room.find('[name=last-temperature-label]').text(lastMeasure.measure+'°C');
+                    room.find('[name=last-measure-label]').html('<i>latest measure: '+timeDifference(new Date(), Date.parse(lastMeasure.date))+'</i>');
+
+                    bindOnButton(onButton, roomId);
+                    bindMinusButton(room.find('[name=t-minus-btn]'), roomId);
+                    bindPlusButton(room.find('[name=t-plus-btn]'), roomId);
+
+                    row.append(room);
+                    // $('#page-wrapper').append('<tr><td>'+rooms[i].name+'</td><td>'+rooms[i].sensor+'</td><td>'+rooms[i].actuator+'</td></tr>');
+                    j++;
+                }
+                rows.push(row);
+                for(var i in rows){
+                   $('#page-wrapper').append(rows[i]);
+                }
+                        
+              });
+        }
+        populateRoomList(); 
+        
+    });
+</script>
+{% endblock scripts %}

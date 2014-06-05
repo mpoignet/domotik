@@ -44,7 +44,7 @@ class Room(models.Model):
     isControlled = models.BooleanField(default=True)
     temperature = models.FloatField(blank=False, null=False, default=20)
     sensor = models.ForeignKey(Sensor)
-    actuator = models.ForeignKey(Actuator)
+    actuator = models.ForeignKey(Actuator, null=True)
 
 class Watcher(models.Model):
     def __unicode__(self):

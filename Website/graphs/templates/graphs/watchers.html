@@ -188,16 +188,17 @@
         function populateDeviceList() {
           $.getJSON('http://localhost:8000/temperatures/list', function(data) {
             sensors = data.sensors;
-            if (sensors.length < 7) {
-                $('#sensor-select').append('<div class="col-lg-8"></div');
-            }
-            if(sensors.length > 6 && sensors.length < 13){
-                $('#sensor-select').append('<div class="col-lg-4"></div');
-            }
+            $('#sensor-select').append('<div class="col-lg-8"></div');
+            // if (sensors.length < 7) {
+            //     $('#sensor-select').append('<div class="col-lg-8"></div');
+            // }
+            // if(sensors.length > 6 && sensors.length < 13){
+            //     $('#sensor-select').append('<div class="col-lg-4"></div');
+            // }
 
             var column = $('#sensor-select > div')
             for(var i in sensors){
-                if(i==6) column = $('#sensor-select').append('<div class="col-lg-4"></div');
+                // if(i==6) column = $('#sensor-select').append('<div class="col-lg-4"></div');
                 column.append('<br><input type="checkbox" name="device" value="'+sensors[i].id+'" checked>'+sensors[i].name);
             }
           });
@@ -212,8 +213,8 @@
                 if(this.checked) devices.push($(this).attr('value'));
             });
 
-            var startDate = $('#startDate').data("DateTimePicker").getDate() / 1000;
-            var endDate = $('#endDate').data("DateTimePicker").getDate() / 1000;
+            var startDate = Math.floor($('#startDate').data("DateTimePicker").getDate() / 1000);
+            var endDate = Math.floor($('#endDate').data("DateTimePicker").getDate() / 1000);
             
             if(startDate){
               url = url+'startDate='+startDate+'&';

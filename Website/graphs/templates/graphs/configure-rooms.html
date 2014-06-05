@@ -2,10 +2,122 @@
 {% load staticfiles %}
 
 {% block content %}
+
 <div class="row">
     <div class="col-lg-12">
         <h1 class="page-header">Configure Rooms</h1>
     </div>
+    <div class="col-lg-12" style="margin-bottom:20px;">
+        <!-- Button trigger modal -->
+        <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#add-room-modal">
+          Add Room
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="add-room-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Add Room</h4>
+              </div>
+              <div class="modal-body">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Name" id="room-name-input">
+                  <form id="sensor-list">
+
+                  </form>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="add-room-save-btn">Save changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
     <!-- /.col-lg-12 -->
 </div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default" id="room-panel">
+          <div class="panel-heading">
+            <h3 class="panel-title">Rooms</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table">
+               <thead>
+                  <tr>
+                     <th>Name</th>
+                     <th>Sensor</th>
+                     <th>Actuator</th>
+                  </tr>
+               </thead>
+               <tbody>
+                  
+               </tbody>
+            </table>
+          </div>
+        </div>
+        
+    </div>
+</div>
+<div id="room-added-modal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="alert alert-success" style="margin:0;">Room succesfully added</div>
+    </div>
+  </div>
+</div>
+
+
 {% endblock content %}
+{% block scripts %}
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        function populateSensorList() {
+          $.getJSON('http://localhost:8000/temperatures/list', function(data) {
+            sensors = data.sensors;
+            for(var i in sensors){
+                $('#sensor-list').append('<br><input type="radio" name="device" value="'+sensors[i].id+'">'+sensors[i].name);
+            }
+          });
+        }
+        function populateRoomList(){
+            $.getJSON('http://localhost:8000/temperatures/rooms', function(data) {
+                rooms = data.rooms;
+                for(var i in rooms){
+                    $('#room-panel tbody').append('<tr><td>'+rooms[i].name+'</td><td>'+rooms[i].sensor+'</td><td>'+rooms[i].actuator+'</td></tr>');
+                }
+              });
+        }
+        populateSensorList();
+        populateRoomList();
+        $("#add-room-save-btn").click(function () {
+            var roomName = $('#room-name-input').val();
+            var sensorId = $('#sensor-list input:radio:checked').val();
+            if(!roomName){
+                alert("please provide room name");
+                return
+            } 
+            if(!sensorId){
+                alert("please select sensor");
+                return
+            } 
+            $.post( 'http://localhost:8000/temperatures/rooms', {name: roomName, id: sensorId} )
+            .done(function(data){
+                $('#room-added-modal .modal-content').html('<div class="alert alert-success" style="margin:0;">Room '+data.name+' succesfully added</div>');
+                $('#room-added-modal').modal();
+            })
+            .fail(function(data){
+                $('#room-add-fail').modal();
+            });
+        });
+        
+    });
+</script>
+
+{% endblock scripts %}
