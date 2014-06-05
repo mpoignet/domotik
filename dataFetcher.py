@@ -13,63 +13,62 @@ def log(string):
 
 @timeout(10)
 def getData(serverAdress):
-	#return urllib2.urlopen(serverAdress).read()
-	return '{"28844A68050000C5":23.62,"2843AE680500001A":23.56,"28B377670500005F":23.50}'
+	return urllib2.urlopen(serverAdress).read()
 
-serverAdress = "http://192.168.2.79/"
+serverAdress = "http://192.168.2.80/"
 
-#while(True):
-# Database connection
-db = MySQLdb.connect(host="localhost", user="oasis", passwd="oasis", db="oasis2") 				  
-cur = db.cursor() 
- 
-# Fetching data from arduino
-jsonContent = False
-try:
-	log('Contacting server at '+serverAdress)
-	jsonContent = getData(serverAdress)
-except:
-	log('ERROR: Server is unreachable')
-	time.sleep(15)
-
-
-if(jsonContent):
+while(True):
+	# Database connection
+	db = MySQLdb.connect(host="localhost", user="oasis", passwd="oasis", db="oasis2") 				  
+	cur = db.cursor() 
+	 
+	# Fetching data from arduino
+	jsonContent = False
 	try:
-		measures = json.loads(jsonContent)   
-		currentDate = datetime.datetime.now()  
-		goodReading = True
-		log('Measures: '+str(measures))
-
-		#Checking the data 
-		for p in measures.keys():
-			if( p!='date' and ((measures[p] > 84) or (measures[p] < -20))):
-				goodReading=False
+		log('Contacting server at '+serverAdress)
+		jsonContent = getData(serverAdress)
 	except:
-		log('ERROR: Parsing exception')
-		goodReading = False
+		log('ERROR: Server is unreachable')
+		time.sleep(15)
 
-	if(goodReading):
-		# Inserting data into the database
+
+	if(jsonContent):
 		try:
-			for m in measures.keys():
-				cur.execute("SELECT id FROM temperatures_device WHERE address=%s", (m))
-				if(cur.rowcount > 0):
-					result = cur.fetchone()
-					device_id = int(result[0])
-				else:
-					cur.execute("INSERT INTO temperatures_device(address) VALUES (%s)", (m))
-					device_id = cur.lastrowid
+			measures = json.loads(jsonContent)   
+			currentDate = datetime.datetime.now()  
+			goodReading = True
+			log('Measures: '+str(measures))
 
-				cur.execute("INSERT INTO temperatures_record(date,measure, device_id) VALUES (%s,%s,%s)", (currentDate.strftime("%Y-%m-%d %H:%M:%S"), measures[m], device_id))
-			db.commit()
-		except MySQLdb.Error, e:
-		    log("MySQL Error [%d]: %s" % (e.args[0], e.args[1]))
-		    db.rollback()
+			#Checking the data 
+			for p in measures.keys():
+				if( p!='date' and ((measures[p] > 84) or (measures[p] < -20))):
+					goodReading=False
 		except:
-			log("ERROR: Problem inserting in the database")
-			db.rollback()
-		  
-		db.close()	
-		#time.sleep(15)				
+			log('ERROR: Parsing exception')
+			goodReading = False
+
+		if(goodReading):
+			# Inserting data into the database
+			try:
+				for m in measures.keys():
+					cur.execute("SELECT id FROM temperatures_sensor WHERE address=%s", (m))
+					if(cur.rowcount > 0):
+						result = cur.fetchone()
+						device_id = int(result[0])
+					else:
+						cur.execute("INSERT INTO temperatures_sensor(address) VALUES (%s)", (m))
+						device_id = cur.lastrowid
+
+					cur.execute("INSERT INTO temperatures_record(date,measure, sensor_id) VALUES (%s,%s,%s)", (currentDate.strftime("%Y-%m-%d %H:%M:%S"), measures[m], device_id))
+				db.commit()
+			except MySQLdb.Error, e:
+			    log("MySQL Error [%d]: %s" % (e.args[0], e.args[1]))
+			    db.rollback()
+			except:
+				log("ERROR: Problem inserting in the database")
+				db.rollback()
+			  
+			db.close()	
+			time.sleep(15)				
 
 
