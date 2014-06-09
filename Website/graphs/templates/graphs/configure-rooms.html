@@ -9,7 +9,7 @@
     </div>
     <div class="col-lg-12" style="margin-bottom:20px;">
         <button class="btn btn-primary btn-lg" id="add-room-btn">
-          Add Room
+            Add Room
         </button>
     </div>
     <!-- /.col-lg-12 -->
@@ -17,29 +17,28 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="panel panel-default" id="room-panel">
-          <div class="panel-heading">
-            <h3 class="panel-title">Rooms</h3>
-          </div>
-          <div class="panel-body">
-            <table class="table table-stripped">
-               <thead>
-                  <tr>
-                     <th>Name</th>
-                     <th>Sensor</th>
-                     <th>Actuator</th>
-                     <th></th>
-                  </tr>
-               </thead>
-               <tbody>
-                  
-               </tbody>
-            </table>
-          </div>
+            <div class="panel-heading">
+                <h3 class="panel-title">Rooms</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-stripped">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Sensor</th>
+                        <th>Actuator</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+            </div>
         </div>
-        
+
     </div>
 </div>
-
 
 
 {% endblock content %}
@@ -47,81 +46,86 @@
 
 
 <script type="text/javascript">
-    $(document).ready(function() {
+    $(document).ready(function () {
         function populateSensorList() {
-          $.getJSON('http://localhost:8000/temperatures/list', function(data) {
-            sensors = data.sensors;
-            for(var i in sensors){
-                $('#sensor-list').append('<br><input type="radio" name="device" value="'+sensors[i].id+'">'+sensors[i].name);
-            }
-          });
-        }
-        function populateRoomList(){
-            $.getJSON('http://localhost:8000/temperatures/rooms', function(data) {
-                rooms = data.rooms;
-
-                for(var i in rooms){
-                  if(rooms[i].sensor.name){
-                    var sensorName = rooms[i].sensor.name;
-                  }else{
-                    var sensorName = rooms[i].sensor.address;
-                  }
-                  if(!rooms[i].actuator){
-                    rooms[i].actuator = '-'
-                  }
-
-                  $('#room-panel tbody').append('<tr><td>'+rooms[i].name+'</td><td>'+sensorName+'</td><td>'+rooms[i].actuator+'</td><td><button class="btn btn-default btn-xs"><i class="fa fa-wrench" name="room-update-btn"></i></button><button class="btn btn-default btn-xs" name="room-delete-btn"><i class="fa fa-times"></button></td></tr>');
+            $.getJSON('http://localhost:8000/temperatures/list', function (data) {
+                var sensors = data.sensors;
+                for (var i in sensors) {
+                    $('#sensor-list').append('<br><input type="radio" name="device" value="' + sensors[i].id + '">' + sensors[i].name);
                 }
-              });
+            });
         }
+
+        function populateRoomList() {
+            $.getJSON('http://localhost:8000/temperatures/rooms', function (data) {
+                var rooms = data.rooms;
+
+                for (var i in rooms) {
+                    if (rooms[i].sensor.name) {
+                        var sensorName = rooms[i].sensor.name;
+                    } else {
+                        var sensorName = rooms[i].sensor.address;
+                    }
+                    if (!rooms[i].actuator) {
+                        rooms[i].actuator = '-'
+                    }
+
+                    $('#room-panel tbody').append('<tr><td>' + rooms[i].name + '</td><td>' + sensorName + '</td><td>' + rooms[i].actuator + '</td><td><button class="btn btn-default btn-xs"><i class="fa fa-wrench" name="room-update-btn"></i></button><button class="btn btn-default btn-xs" name="room-delete-btn"><i class="fa fa-times"></button></td></tr>');
+                }
+            });
+        }
+
         populateRoomList();
         $("#add-room-btn").click(function () {
-          BootstrapDialog.show({
-            title: 'Add Room',
-            message: '<input type="text" class="form-control" placeholder="Name" id="room-name-input">\
+            BootstrapDialog.show({
+                title: 'Add Room',
+                message: '<input type="text" class="form-control" placeholder="Name" id="room-name-input">\
                       <form id="sensor-list"></form>\
                       <input type="text" class="form-control" placeholder="Actuator adress" id="room-actuator-input">',
-            onshown: function(dialogRef){
-                populateSensorList();
-            },
-            buttons: [{
-                label: 'Close',
-                action: function(dialogItself){
-                    dialogItself.close();
-                }
-            }, {
-                label: 'Add Room',
-                action: function(dialog) {
-                    var roomName = $('#room-name-input').val();
-                    var sensorId = $('#sensor-list input:radio:checked').val();
-                    if(!roomName){
-                        alert("please provide room name");
-                        return
-                    } 
-                    if(!sensorId){
-                        alert("please select sensor");
-                        return
-                    } 
-                    $.post( 'http://localhost:8000/temperatures/rooms', {name: roomName, id: sensorId} )
-                    .done(function(data){
-                        BootstrapDialog.show({
-                            type: BootstrapDialog.TYPE_SUCCESS,
-                            title: 'Room added',
-                            message: 'Room '+data.name+' succesfully added'
-                        });     
-                    })
-                    .fail(function(data){
-                        BootstrapDialog.show({
-                            type: BootstrapDialog.TYPE_DANGER,
-                            title: 'Error',
-                            message: 'Room not added'
-                        });   
-                    });
-                }
-            }]
+                onshown: function (dialogRef) {
+                    populateSensorList();
+                },
+                buttons: [
+                    {
+                        label: 'Close',
+                        action: function (dialogItself) {
+                            dialogItself.close();
+                        }
+                    },
+                    {
+                        label: 'Add Room',
+                        action: function (dialog) {
+                            var roomName = $('#room-name-input').val();
+                            var sensorId = $('#sensor-list input:radio:checked').val();
+                            if (!roomName) {
+                                alert("please provide room name");
+                                return
+                            }
+                            if (!sensorId) {
+                                alert("please select sensor");
+                                return
+                            }
+                            $.post('http://localhost:8000/temperatures/rooms', {name: roomName, id: sensorId})
+                                    .done(function (data) {
+                                        BootstrapDialog.show({
+                                            type: BootstrapDialog.TYPE_SUCCESS,
+                                            title: 'Room added',
+                                            message: 'Room ' + data.name + ' succesfully added'
+                                        });
+                                    })
+                                    .fail(function (data) {
+                                        BootstrapDialog.show({
+                                            type: BootstrapDialog.TYPE_DANGER,
+                                            title: 'Error',
+                                            message: 'Room not added'
+                                        });
+                                    });
+                        }
+                    }
+                ]
+            });
         });
-        });
-        
+
     });
 </script>
 

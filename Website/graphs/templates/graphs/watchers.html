@@ -2,133 +2,142 @@
 {% load staticfiles %}
 
 {% block head %}
-    <link href="{% static 'css/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+<link href="{% static 'css/bootstrap-datetimepicker.min.css' %}"
+      rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <h1 class="page-header">Watchers</h1>
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Watchers</h1>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- /.row -->
+<div class="row">
+<div class="col-lg-12">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Select sensors
+        </div>
+        <!-- /.panel-heading -->
+        <div class="panel-body">
+            <div class="col-lg-4">
+                <div class="input-group">
+                    Start Date:
+                    <div class="form-group">
+                        <div class='input-group date' id='startDate'>
+                            <input type='text' class="form-control"/>
+                                            <span class="input-group-addon"><span
+                                                    class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                        </div>
+                    </div>
                 </div>
-                <!-- /.col-lg-12 -->
+                <div class="input-group">
+                    End Date:
+                    <div class="form-group">
+                        <div class='input-group date' id='endDate'>
+                            <input type='text' class="form-control"/>
+                                            <span class="input-group-addon"><span
+                                                    class="glyphicon glyphicon-calendar"></span>
+                                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <button type="submit" class="btn btn-primary"
+                            id="submit-btn">Submit
+                    </button>
+                    <button type="submit" class="btn" id="csv-btn"
+                            style="margin-left: 20px;">Download CSV
+                    </button>
+                </div>
             </div>
-            <!-- /.row -->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Select sensors
-                        </div>
-                        <!-- /.panel-heading -->
-                        <div class="panel-body">
-                            <div class="col-lg-4">
-                                <div class="input-group">
-                                    Start Date: 
-                                    <div class="form-group">
-                                        <div class='input-group date' id='startDate'>
-                                            <input type='text' class="form-control" />
-                                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="input-group">
-                                    End Date: 
-                                    <div class="form-group">
-                                        <div class='input-group date' id='endDate'>
-                                            <input type='text' class="form-control" />
-                                            <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="input-group">
-                                    <button type="submit" class="btn btn-primary" id="submit-btn">Submit</button>
-                                    <button type="submit" class="btn" id="csv-btn" style="margin-left: 20px;">Download CSV</button>
-                                </div>  
-                            </div>
-                            <div id="sensor-select">
-                                
-                            </div>
-                        </div>
-                        <!-- /.panel-body -->
-                    </div>
-                    <!-- /.panel -->
-                <div class="col-lg-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Line Chart Example
-                        </div>
-                        <!-- /.panel-heading -->
-                        <div class="panel-body">
-                            <div class="flot-chart">
-                                <div class="flot-chart-content" id="flot-line-chart"></div>
-                            </div>
-                        </div>
-                        <!-- /.panel-body -->
-                    </div>
-                    <!-- /.panel -->
-                </div>
-                <!-- /.col-lg-12 -->
-                <!-- <div class="col-lg-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            Line Chart Example
-                        </div>
-                        <div class="panel-body">
-                            <div id="morris-line-chart"></div>
-                        </div>
-                    </div>
-                </div>-->
-                <!-- /.col-lg-6 -->
+            <div id="sensor-select">
 
             </div>
-            <!-- /.row -->
+        </div>
+        <!-- /.panel-body -->
+    </div>
+    <!-- /.panel -->
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Line Chart Example
+            </div>
+            <!-- /.panel-heading -->
+            <div class="panel-body">
+                <div class="flot-chart">
+                    <div class="flot-chart-content" id="flot-line-chart"></div>
+                </div>
+            </div>
+            <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-12 -->
+    <!-- <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Line Chart Example
+            </div>
+            <div class="panel-body">
+                <div id="morris-line-chart"></div>
+            </div>
+        </div>
+    </div>-->
+    <!-- /.col-lg-6 -->
+
+</div>
+</div>
+<!-- /.row -->
 
 {% endblock content %}
 {% block scripts %}
 
 
-    <!-- Page-Level Plugin Scripts - Flot -->
-    <!--[if lte IE 8]><script src="js/excanvas.min.js"></script><![endif]-->
-    <script src="{% static 'js/plugins/flot/jquery.flot.js' %}"></script>
-    <script src="{% static 'js/plugins/flot/jquery.flot.tooltip.min.js' %}"></script>
-    <script src="{% static 'js/plugins/flot/jquery.flot.resize.js' %}"></script>
-    <script src="{% static 'js/plugins/flot/jquery.flot.pie.js' %}"></script>
+<!-- Page-Level Plugin Scripts - Flot -->
+<!--[if lte IE 8]>
+<script src="js/excanvas.min.js"></script><![endif]-->
+<script src="{% static 'js/plugins/flot/jquery.flot.js' %}"></script>
+<script src="{% static 'js/plugins/flot/jquery.flot.tooltip.min.js' %}"></script>
+<script src="{% static 'js/plugins/flot/jquery.flot.resize.js' %}"></script>
+<script src="{% static 'js/plugins/flot/jquery.flot.pie.js' %}"></script>
 
-    <!-- Page-Level Plugin Scripts - Morris -->
-    <script src="{% static 'js/plugins/morris/raphael-2.1.0.min.js' %}"></script>
-    <script src="{% static 'js/plugins/morris/morris.js' %}"></script>
+<!-- Page-Level Plugin Scripts - Morris -->
+<script src="{% static 'js/plugins/morris/raphael-2.1.0.min.js' %}"></script>
+<script src="{% static 'js/plugins/morris/morris.js' %}"></script>
 
-    <script src="{% static 'js/moment.min.js' %}"></script>
-    <script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
+<script src="{% static 'js/moment.min.js' %}"></script>
+<script src="{% static 'js/bootstrap-datetimepicker.min.js' %}"></script>
 
-    <script type="text/javascript">
-        $(function () {
-            $('#startDate').datetimepicker();
-        });
-    </script>
+<script type="text/javascript">
+    $(function () {
+        $('#startDate').datetimepicker();
+    });
+</script>
 
-    <script type="text/javascript">
-        $(function () {
-            $('#endDate').datetimepicker();
-        });
-    </script>
+<script type="text/javascript">
+    $(function () {
+        $('#endDate').datetimepicker();
+    });
+</script>
 
 
-    <script type="text/javascript">
-    $(document).ready(function() {
+<script type="text/javascript">
+    $(document).ready(function () {
 
-        function drawMorris(url){
-            $.getJSON(url+'output=morris', function(data){
+        function drawMorris(url) {
+            $.getJSON(url + 'output=morris', function (data) {
                 elements = data.mElements;
                 sensors = [];
-                for(var k in elements[0]){
-                    if(k!='date') sensors.push(k);
-                } 
-                
+                for (var k in elements[0]) {
+                    if (k != 'date') sensors.push(k);
+                }
+
                 Morris.Line({
                     element: 'morris-line-chart',
                     data: elements,
@@ -142,9 +151,9 @@
             });
         }
 
-        function drawFlot(url){
+        function drawFlot(url) {
 
-            $.getJSON(url+'output=flot', function(data){
+            $.getJSON(url + 'output=flot', function (data) {
                 sensors = data.sensors;
 
                 var options = {
@@ -173,59 +182,59 @@
                     }
                 };
 
-                var toPlot = []
+                var toPlot = [];
 
-                for(var i in sensors){
+                for (var i in sensors) {
                     toPlot.push({data: sensors[i].values, label: sensors[i].name});
                 }
 
-                var plotObj = $.plot($("#flot-line-chart"), toPlot,options);
+                $.plot($("#flot-line-chart"), toPlot, options);
 
             });
-            
+
         }
 
         function populateDeviceList() {
-          $.getJSON('http://localhost:8000/temperatures/list', function(data) {
-            sensors = data.sensors;
-            $('#sensor-select').append('<div class="col-lg-8"></div');
-            // if (sensors.length < 7) {
-            //     $('#sensor-select').append('<div class="col-lg-8"></div');
-            // }
-            // if(sensors.length > 6 && sensors.length < 13){
-            //     $('#sensor-select').append('<div class="col-lg-4"></div');
-            // }
+            $.getJSON('http://localhost:8000/temperatures/list', function (data) {
+                var sensors = data.sensors;
+                $('#sensor-select').append('<div class="col-lg-8"></div>');
+                // if (sensors.length < 7) {
+                //     $('#sensor-select').append('<div class="col-lg-8"></div');
+                // }
+                // if(sensors.length > 6 && sensors.length < 13){
+                //     $('#sensor-select').append('<div class="col-lg-4"></div');
+                // }
 
-            var column = $('#sensor-select > div')
-            for(var i in sensors){
-                // if(i==6) column = $('#sensor-select').append('<div class="col-lg-4"></div');
-                column.append('<br><input type="checkbox" name="device" value="'+sensors[i].id+'" checked>'+sensors[i].name);
-            }
-          });
+                var column = $('#sensor-select > div');
+                for (var i in sensors) {
+                    // if(i==6) column = $('#sensor-select').append('<div class="col-lg-4"></div');
+                    column.append('<br><input type="checkbox" name="device" value="' + sensors[i].id + '" checked>' + sensors[i].name);
+                }
+            });
         }
 
-        populateDeviceList(); 
+        populateDeviceList();
 
         function getUrl() {
-            var url='http://localhost:8000/temperatures/?';
+            var url = 'http://localhost:8000/temperatures/?';
             var devices = [];
-            $('#sensor-select input[type="checkbox"]').each(function(){
-                if(this.checked) devices.push($(this).attr('value'));
+            $('#sensor-select input[type="checkbox"]').each(function () {
+                if (this.checked) devices.push($(this).attr('value'));
             });
 
             var startDate = Math.floor($('#startDate').data("DateTimePicker").getDate() / 1000);
             var endDate = Math.floor($('#endDate').data("DateTimePicker").getDate() / 1000);
-            
-            if(startDate){
-              url = url+'startDate='+startDate+'&';
+
+            if (startDate) {
+                url = url + 'startDate=' + startDate + '&';
             }
-            if(endDate){
-              url = url + 'endDate='+endDate+'&';
+            if (endDate) {
+                url = url + 'endDate=' + endDate + '&';
             }
-            if(devices){
-              for(var i in devices){
-                url = url + 'sensors='+devices[i]+'&';
-              }
+            if (devices) {
+                for (var i in devices) {
+                    url = url + 'sensors=' + devices[i] + '&';
+                }
             }
             return url;
         }
@@ -235,15 +244,15 @@
         });
 
         $("#csv-btn").click(function () {
-            window.location = getUrl()+'output=csv';
+            window.location = getUrl() + 'output=csv';
         });
 
         dataUrl = 'http://localhost:8000/temperatures/?';
         drawFlot(dataUrl);
         //drawMorris(dataUrl);
     });
-    </script>
-    
+</script>
+
 {% endblock scripts %}
 
 </body>

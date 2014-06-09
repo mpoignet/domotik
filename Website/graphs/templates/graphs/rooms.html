@@ -14,7 +14,7 @@
 
 {% block scripts %}
 <script type="text/javascript">
-    $(document).ready(function() {
+    $(document).ready(function () {
         var roomTemplate = '<div class="col-lg-3"> \
                                 <div class="panel panel-default" id="room-panel"> \
                                   <div class="panel-heading"> \
@@ -47,81 +47,85 @@
             var elapsed = current - previous;
 
             if (elapsed < msPerMinute) {
-                 return Math.round(elapsed/1000) + ' seconds ago';   
+                return Math.round(elapsed / 1000) + ' seconds ago';
             }
             else if (elapsed < msPerHour) {
-                 return Math.round(elapsed/msPerMinute) + ' minutes ago';   
+                return Math.round(elapsed / msPerMinute) + ' minutes ago';
             }
-            else if (elapsed < msPerDay ) {
-                 return Math.round(elapsed/msPerHour ) + ' hours ago';   
+            else if (elapsed < msPerDay) {
+                return Math.round(elapsed / msPerHour) + ' hours ago';
             }
             else if (elapsed < msPerMonth) {
-                return Math.round(elapsed/msPerDay) + ' days ago';   
+                return Math.round(elapsed / msPerDay) + ' days ago';
             }
             else if (elapsed < msPerYear) {
-                return Math.round(elapsed/msPerMonth) + ' months ago';   
+                return Math.round(elapsed / msPerMonth) + ' months ago';
             }
             else {
-                return Math.round(elapsed/msPerYear ) + ' years ago';   
+                return Math.round(elapsed / msPerYear) + ' years ago';
             }
         }
-        function bindOnButton(btn, id){
-            btn.click(function(){
-                $.post( 'http://localhost:8000/temperatures/rooms/toggle', {id: id} )
-                .done(function(data){
-                    if(btn.hasClass('btn-success')){
-                        btn.removeClass('btn-success').addClass('btn-danger').html('<b>OFF</b>');
-                    }else{
-                        btn.removeClass('btn-danger').addClass('btn-success').html('<b>ON</b>');
-                    }
-                });
+
+        function bindOnButton(btn, id) {
+            btn.click(function () {
+                $.post('http://localhost:8000/temperatures/rooms/toggle', {id: id})
+                        .done(function (data) {
+                            if (btn.hasClass('btn-success')) {
+                                btn.removeClass('btn-success').addClass('btn-danger').html('<b>OFF</b>');
+                            } else {
+                                btn.removeClass('btn-danger').addClass('btn-success').html('<b>ON</b>');
+                            }
+                        });
             });
-            
+
         }
-        function bindMinusButton(btn, id){
-            btn.click(function(){
-                $.post( 'http://localhost:8000/temperatures/rooms/addToTemperature', {id: id, t: -1} )
-                .done(function(data){
-                    btn.parent().find('[name=temperature-label]').text(data+'°C');
-                });
+
+        function bindMinusButton(btn, id) {
+            btn.click(function () {
+                $.post('http://localhost:8000/temperatures/rooms/addToTemperature', {id: id, t: -1})
+                        .done(function (data) {
+                            btn.parent().find('[name=temperature-label]').text(data + '°C');
+                        });
             });
-            
+
         }
-        function bindPlusButton(btn, id){
-            btn.click(function(){
-                $.post( 'http://localhost:8000/temperatures/rooms/addToTemperature', {id: id, t: 1} )
-                .done(function(data){
-                    btn.parent().find('[name=temperature-label]').text(data+'°C');
-                });
+
+        function bindPlusButton(btn, id) {
+            btn.click(function () {
+                $.post('http://localhost:8000/temperatures/rooms/addToTemperature', {id: id, t: 1})
+                        .done(function (data) {
+                            btn.parent().find('[name=temperature-label]').text(data + '°C');
+                        });
             });
-            
+
         }
-        function populateRoomList(){
-            $.getJSON('http://localhost:8000/temperatures/rooms', function(data) {
+
+        function populateRoomList() {
+            $.getJSON('http://localhost:8000/temperatures/rooms', function (data) {
                 var rooms = data.rooms;
-                var rows = []
+                var rows = [];
                 var row = $('<div class="row"></div>');
-                var j=0;
-                for(var i in rooms){
+                var j = 0;
+                for (var i in rooms) {
                     var roomId = rooms[i].id;
                     var roomName = rooms[i].name;
                     var roomTemperature = rooms[i].temperature;
                     var roomControlled = rooms[i].isControlled;
                     var lastMeasure = rooms[i].lastMeasure;
-                    if(j==4){
-                        j=0;
+                    if (j == 4) {
+                        j = 0;
                         rows.push(row);
                         row = $('<div class="row"></div>');
                     }
                     var room = $(roomTemplate);
                     room.find('h3').text(roomName);
                     var onButton = room.find('[name=on-btn]');
-                    if(!roomControlled){
+                    if (!roomControlled) {
                         onButton.removeClass('btn-success').addClass('btn-danger').html('<b>OFF</b>');
                     }
-                    room.find('[name=temperature-label]').text(roomTemperature+'°C');
-                    room.find('[name=last-temperature-label]').text(lastMeasure.measure+'°C');
-                    room.find('[name=last-measure-label]').html('<i>latest measure: '+timeDifference(new Date(), Date.parse(lastMeasure.date))+'</i>');
+                    room.find('[name=temperature-label]').text(roomTemperature + '°C');
+                    room.find('[name=last-temperature-label]').text(lastMeasure.measure + '°C');
+                    room.find('[name=last-measure-label]').html('<i>latest measure: ' + timeDifference(new Date(), Date.parse(lastMeasure.date)) + '</i>');
 
                     bindOnButton(onButton, roomId);
                     bindMinusButton(room.find('[name=t-minus-btn]'), roomId);
@@ -132,14 +136,15 @@
                     j++;
                 }
                 rows.push(row);
-                for(var i in rows){
-                   $('#page-wrapper').append(rows[i]);
+                for (var i in rows) {
+                    $('#page-wrapper').append(rows[i]);
                 }
-                        
-              });
+
+            });
         }
-        populateRoomList(); 
-        
+
+        populateRoomList();
+
     });
 </script>
 {% endblock scripts %}

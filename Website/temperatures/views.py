@@ -1,88 +1,90 @@
-from django.shortcuts import render
-from django.template import RequestContext, loader, Template
-from django.core.context_processors import csrf
-from django.shortcuts import render_to_response
-from django.http import HttpResponse
-from temperatures.models import Sensor, Record, Room
-from django.core import serializers
 from collections import OrderedDict
-from django.forms.models import model_to_dict
 import json
 import csv
 import datetime
 import calendar
+
+from django.template import RequestContext, Template
+from django.http import HttpResponse
+from django.forms.models import model_to_dict
 import pytz
 
+from temperatures.models import Sensor, Record, Room
 
-# Create your views here.
 
-def getSensorList(request):
-    sensorList = Sensor.objects.all().values()
+def get_sensor_list(request):
+    sensor_list = Sensor.objects.all().values()
     sensors = []
-    for sensor in sensorList:
-        s={}
-        if(not sensor['name']):
+    for sensor in sensor_list:
+        s = {}
+        if not sensor['name']:
             s['name'] = str(sensor['address'])
         else:
             s['name'] = sensor['name']
         s['id'] = sensor['id']
-        sensors.append(s)   
-    return HttpResponse(json.dumps({'sensors': sensors}), content_type="application/json")
+        sensors.append(s)
+    return HttpResponse(json.dumps({'sensors': sensors}),
+                        content_type="application/json")
 
 
-def getSensorData(request):
-    sensorList = request.GET.getlist('sensors', []) 
-    if(sensorList):
-        sensorList = Sensor.objects.filter(pk__in=sensorList).values()
+def get_sensor_data(request):
+    sensor_list = request.GET.getlist('sensors', [])
+    if sensor_list:
+        sensor_list = Sensor.objects.filter(pk__in=sensor_list).values()
     else:
-        sensorList = Sensor.objects.all().values()
-    startDate = request.GET.get('startDate', '')
-    endDate = request.GET.get('endDate', '')
-    
+        sensor_list = Sensor.objects.all().values()
+    start_date = request.GET.get('startDate', '')
+    end_date = request.GET.get('endDate', '')
+
     output = request.GET.get('output', 'json')
-    if(output=='csv'):
-        return returnCSV(sensorList, startDate, endDate)
-    if(output=='flot'):
-        return returnFlot(sensorList, startDate, endDate)
-    if(output=='morris'):
-        return returnMorris(sensorList, startDate, endDate)
-    return returnJson(sensorList, startDate, endDate)
+    if output == 'csv':
+        return return_csv(sensor_list, start_date, end_date)
+    if output == 'flot':
+        return return_flot(sensor_list, start_date, end_date)
+    if output == 'morris':
+        return return_morris(sensor_list, start_date, end_date)
+    return return_json(sensor_list, start_date, end_date)
 
-def getRecords(sensorId, startDate, endDate):
-    if(startDate):
-        startDate = datetime.datetime.fromtimestamp(int(startDate), pytz.timezone('CET')).strftime('%Y-%m-%d %H:%M:%S')
-    if(endDate): 
-        endDate = datetime.datetime.fromtimestamp(int(endDate), pytz.timezone('CET')).strftime('%Y-%m-%d %H:%M:%S')
-    records = []
-    if(startDate and endDate):
+
+def get_records(sensor_id, start_date, end_date):
+    if start_date:
+        start_date = datetime.datetime.fromtimestamp(
+            int(start_date), pytz.timezone('CET')).strftime('%Y-%m-%d %H:%M:%S')
+    if end_date:
+        end_date = datetime.datetime.fromtimestamp(int(end_date), pytz.timezone(
+            'CET')).strftime('%Y-%m-%d %H:%M:%S')
+    if start_date and end_date:
         print "DATES"
-        print startDate
-        print endDate
-        records = Record.objects.filter(sensor_id=sensorId).filter(date__gte=startDate).filter(date__lte=endDate)
-        print sensorId
+        print start_date
+        print end_date
+        records = Record.objects.filter(sensor_id=sensor_id).filter(
+            date__gte=start_date).filter(date__lte=end_date)
+        print sensor_id
         print records
-    elif(startDate):
-        records = Record.objects.filter(sensor_id=sensorId).filter(date__gte=startDate)
+    elif start_date:
+        records = Record.objects.filter(sensor_id=sensor_id).filter(
+            date__gte=start_date)
     else:
-        records = Record.objects.filter(sensor_id=sensorId).order_by('-date')[0:250]
+        records = Record.objects.filter(sensor_id=sensor_id).order_by('-date')[0:250]
     return records
 
-def returnMorris(sensorList, startDate, endDate):
+
+def return_morris(sensor_list, start_date, end_date):
     sensors = []
-    dates = {};
-    for sensor in sensorList:
-        if(not sensor['name']):
-            sensorName = str(sensor['address'])
+    dates = {}
+    for sensor in sensor_list:
+        if not sensor['name']:
+            sensor_name = str(sensor['address'])
         else:
-            sensorName = sensor['name']
-        records = getRecords(sensor['id'], startDate, endDate)
-        if(len(records) > 0):
-            sensors.append(sensorName)
+            sensor_name = sensor['name']
+        records = get_records(sensor['id'], start_date, end_date)
+        if len(records) > 0:
+            sensors.append(sensor_name)
             for record in records:
-                dateString = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
-                if(not dateString in dates):
-                   dates[dateString] = {}
-                dates[dateString][sensorName] = record.measure 
+                date_string = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
+                if not date_string in dates:
+                    dates[date_string] = {}
+                dates[date_string][sensor_name] = record.measure
 
     elements = []
     for date in dates:
@@ -91,68 +93,70 @@ def returnMorris(sensorList, startDate, endDate):
             element[sensor] = dates[date][sensor]
         elements.append(element)
 
-    return HttpResponse(json.dumps({'mElements': elements}), content_type="application/json")
+    return HttpResponse(json.dumps({'mElements': elements}),
+                        content_type="application/json")
 
 
-def returnFlot(sensorList, startDate, endDate):
+def return_flot(sensor_list, start_date, end_date):
     sensors = []
-    for sensor in sensorList:
-        s={}
-        if(not sensor['name']):
+    for sensor in sensor_list:
+        s = {}
+        if not sensor['name']:
             s['name'] = str(sensor['address'])
         else:
             s['name'] = sensor['name']
         s['values'] = []
-        records = getRecords(sensor['id'], startDate, endDate)
-        if(len(records) > 0):
+        records = get_records(sensor['id'], start_date, end_date)
+        if len(records) > 0:
             for record in records:
                 # javascript timestamps are in ms, unix timestamp in s, hence the *1000
-                timestamp = calendar.timegm(record.date.timetuple())*1000
+                timestamp = calendar.timegm(record.date.timetuple()) * 1000
                 s['values'].append((timestamp, record.measure))
-            sensors.append(s)   
+            sensors.append(s)
 
-    return HttpResponse(json.dumps({'sensors': sensors}), content_type="application/json")
+    return HttpResponse(json.dumps({'sensors': sensors}),
+                        content_type="application/json")
 
-    
-def returnJson(sensorList, startDate, endDate):
+
+def return_json(sensor_list, start_date, end_date):
     sensors = []
-    for sensor in sensorList:
-        s={}
-        if(not sensor['name']):
+    for sensor in sensor_list:
+        s = {}
+        if not sensor['name']:
             s['name'] = str(sensor['address'])
         else:
             s['name'] = sensor['name']
         s['values'] = []
-        records = getRecords(sensor['id'], startDate, endDate)
-        if(len(records) > 0):
+        records = get_records(sensor['id'], start_date, end_date)
+        if len(records) > 0:
             for record in records:
-                dateString = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
-                s['values'].append({'date': dateString, 'temperature': record.measure})
-            sensors.append(s)   
+                date_string = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
+                s['values'].append(
+                    {'date': date_string, 'temperature': record.measure})
+            sensors.append(s)
 
-    return HttpResponse(json.dumps({'sensors': sensors}), content_type="application/json")
+    return HttpResponse(json.dumps({'sensors': sensors}),
+                        content_type="application/json")
 
 
-def returnCSV(sensorList, startDate, endDate):
-
+def return_csv(sensorList, startDate, endDate):
     sensors = []
-    dates = {};
+    dates = {}
     for sensor in sensorList:
-        if(not sensor['name']):
-            sensorName = str(sensor['address'])
+        if not sensor['name']:
+            sensor_name = str(sensor['address'])
         else:
-            sensorName = sensor['name']
-        records = getRecords(sensor['id'], startDate, endDate)
-        if(len(records) > 0):
-            sensors.append(sensorName)
+            sensor_name = sensor['name']
+        records = get_records(sensor['id'], startDate, endDate)
+        if len(records) > 0:
+            sensors.append(sensor_name)
             for record in records:
-                dateString = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
-                if(not dateString in dates):
-                   dates[dateString] = {}
-                dates[dateString][sensorName] = record.measure 
+                date_string = str(record.date.strftime('%Y-%m-%d %H:%M:%S'))
+                if not date_string in dates:
+                    dates[date_string] = {}
+                dates[date_string][sensor_name] = record.measure
 
-    header = []
-    header.append('date')
+    header = ['date']
     for sensor in sorted(sensors):
         header.append(sensor)
 
@@ -169,46 +173,57 @@ def returnCSV(sensorList, startDate, endDate):
             row.append(value)
         writer.writerow(row)
 
-
     return response
 
-def getRooms(request):
+
+def get_rooms(request):
     if request.method == 'GET':
-        rooms=[]
+        rooms = []
         for room in Room.objects.all():
-            roomDict = model_to_dict(room)
-            if(room.sensor):
-                roomDict['sensor'] = model_to_dict(room.sensor)
-                record = Record.objects.filter(sensor_id=room.sensor.id).order_by('-date')[0]
-                roomDict['lastMeasure'] = {'date': str(record.date.strftime('%Y-%m-%d %H:%M:%S')), 'measure': record.measure}
-            rooms.append(roomDict)
-        return HttpResponse(json.dumps({'rooms': rooms}), content_type="application/json")
+            room_dict = model_to_dict(room)
+            if room.sensor:
+                room_dict['sensor'] = model_to_dict(room.sensor)
+                record = \
+                    Record.objects.filter(sensor_id=room.sensor.id).order_by(
+                        '-date')[0]
+                room_dict['lastMeasure'] = {
+                    'date': str(record.date.strftime('%Y-%m-%d %H:%M:%S')),
+                    'measure': record.measure}
+            rooms.append(room_dict)
+        return HttpResponse(json.dumps({'rooms': rooms}),
+                            content_type="application/json")
     elif request.method == 'POST':
-        roomName = request.POST.get('name')
-        sensorId = request.POST.get('id')
-        room = Room(name=roomName, sensor_id=sensorId)
-        room.save();
-        newRoom = Room.objects.get(id=room.id)
-        c = RequestContext(request,{'room': json.dumps(model_to_dict(newRoom))})
-        t = Template("{% autoescape off %}{{room}}{% endautoescape %} ") # A dummy template
-        response = HttpResponse(t.render(c), mimetype = u'application/json')
+        room_name = request.POST.get('name')
+        sensor_id = request.POST.get('id')
+        room = Room(name=room_name, sensor_id=sensor_id)
+        room.save()
+        new_room = Room.objects.get(id=room.id)
+        c = RequestContext(request,
+                           {'room': json.dumps(model_to_dict(new_room))})
+        t = Template(
+            "{% autoescape off %}{{room}}{% endautoescape %} ")  # A dummy template
+        response = HttpResponse(t.render(c), mimetype=u'application/json')
         return response
 
-def toggleControl(request):
-    roomId = request.POST.get('id')
-    room = Room.objects.get(id=roomId)
-    if(room.isControlled):
+
+def toggle_control(request):
+    room_id = request.POST.get('id')
+    room = Room.objects.get(id=room_id)
+    if room.isControlled:
         room.isControlled = False
     else:
         room.isControlled = True
-    
-    room.save()
-    return HttpResponse(json.dumps(room.isControlled), content_type="application/json")
 
-def addToTemperature(request):
-    roomId = request.POST.get('id')
-    deltaT = request.POST.get('t')
-    room = Room.objects.get(id=roomId)
-    room.temperature = room.temperature + int(deltaT)
     room.save()
-    return HttpResponse(json.dumps(room.temperature), content_type="application/json")
+    return HttpResponse(json.dumps(room.isControlled),
+                        content_type="application/json")
+
+
+def add_to_temperature(request):
+    room_id = request.POST.get('id')
+    delta_t = request.POST.get('t')
+    room = Room.objects.get(id=room_id)
+    room.temperature += int(delta_t)
+    room.save()
+    return HttpResponse(json.dumps(room.temperature),
+                        content_type="application/json")
