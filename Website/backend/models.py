@@ -2,6 +2,8 @@ from django.db import models
 
 
 class Sensor(models.Model):
+    class Meta:
+        db_table = 'sensor'
     def __unicode__(self):
         if self.name:
             return self.name
@@ -19,6 +21,8 @@ class Sensor(models.Model):
 
 
 class Actuator(models.Model):
+    class Meta:
+        db_table = 'actuator'
     def __unicode__(self):
         if self.name:
             return self.name
@@ -34,6 +38,8 @@ class Actuator(models.Model):
 
 
 class Record(models.Model):
+    class Meta:
+        db_table = 'record'
     def __unicode__(self):
         return str(self.date.strftime('%Y-%m-%d %H:%M:%S')) + ': ' + str(
             self.measure)
@@ -44,6 +50,8 @@ class Record(models.Model):
 
 
 class Room(models.Model):
+    class Meta:
+        db_table = 'room'
     def __unicode__(self):
         return self.name
 
@@ -55,6 +63,8 @@ class Room(models.Model):
 
 
 class Watcher(models.Model):
+    class Meta:
+        db_table = 'watcher'
     def __unicode__(self):
         return self.name
 

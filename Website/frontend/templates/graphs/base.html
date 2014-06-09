@@ -286,14 +286,14 @@
                 <!-- /input-group -->
             </li>
             <li>
-                <a href="index.html"><i class="fa fa-dashboard fa-fw"></i>
+                <a href="{% url 'index'%}"><i class="fa fa-dashboard fa-fw"></i>
                     Dashboard</a>
             </li>
             <li>
-                <a href="rooms.html"><i class="fa fa-home fa-fw"></i> Rooms</a>
+                <a href="{% url 'rooms'%}"><i class="fa fa-home fa-fw"></i> Rooms</a>
             </li>
             <li>
-                <a href="watchers.html"><i class="fa fa-bar-chart-o fa-fw"></i>
+                <a href="{% url 'watchers'%}"><i class="fa fa-bar-chart-o fa-fw"></i>
                     Watchers</a>
             </li>
             <li>
@@ -301,10 +301,10 @@
                         class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     <li>
-                        <a href="configure-rooms.html">Rooms</a>
+                        <a href="{% url 'configure_rooms'%}">Rooms</a>
                     </li>
                     <li>
-                        <a href="configure-watchers.html">Watchers</a>
+                        <a href="{% url 'configure_watchers'%}">Watchers</a>
                     </li>
                 </ul>
                 <!-- /.nav-second-level -->
@@ -339,6 +339,9 @@
 <script src="{% static 'js/bootstrap-dialog.min.js' %}"></script>
 
 <script type="text/javascript">
+    function getBackendRoot(){
+        return 'backend';
+    }
     function getCookie(name) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {

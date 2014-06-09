@@ -48,7 +48,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         function populateSensorList() {
-            $.getJSON('http://localhost:8000/temperatures/list', function (data) {
+            $.getJSON("{% url 'get_sensor_list' %}", function (data) {
                 var sensors = data.sensors;
                 for (var i in sensors) {
                     $('#sensor-list').append('<br><input type="radio" name="device" value="' + sensors[i].id + '">' + sensors[i].name);
@@ -57,7 +57,7 @@
         }
 
         function populateRoomList() {
-            $.getJSON('http://localhost:8000/temperatures/rooms', function (data) {
+            $.getJSON("{% url 'get_rooms' %}", function (data) {
                 var rooms = data.rooms;
 
                 for (var i in rooms) {
@@ -105,7 +105,7 @@
                                 alert("please select sensor");
                                 return
                             }
-                            $.post('http://localhost:8000/temperatures/rooms', {name: roomName, id: sensorId})
+                            $.post("{% url 'get_rooms' %}", {name: roomName, id: sensorId})
                                     .done(function (data) {
                                         BootstrapDialog.show({
                                             type: BootstrapDialog.TYPE_SUCCESS,

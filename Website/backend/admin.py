@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from temperatures.models import Sensor, Record
+from backend.models import Sensor, Record
 
 
 # Register your models here.

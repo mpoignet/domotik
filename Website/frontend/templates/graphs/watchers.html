@@ -195,7 +195,7 @@
         }
 
         function populateDeviceList() {
-            $.getJSON('http://localhost:8000/temperatures/list', function (data) {
+            $.getJSON("{% url 'get_sensor_list' %}", function (data) {
                 var sensors = data.sensors;
                 $('#sensor-select').append('<div class="col-lg-8"></div>');
                 // if (sensors.length < 7) {
@@ -216,7 +216,6 @@
         populateDeviceList();
 
         function getUrl() {
-            var url = 'http://localhost:8000/temperatures/?';
             var devices = [];
             $('#sensor-select input[type="checkbox"]').each(function () {
                 if (this.checked) devices.push($(this).attr('value'));
@@ -226,17 +225,17 @@
             var endDate = Math.floor($('#endDate').data("DateTimePicker").getDate() / 1000);
 
             if (startDate) {
-                url = url + 'startDate=' + startDate + '&';
+                dataUrl = dataUrl + 'startDate=' + startDate + '&';
             }
             if (endDate) {
-                url = url + 'endDate=' + endDate + '&';
+                dataUrl = dataUrl + 'endDate=' + endDate + '&';
             }
             if (devices) {
                 for (var i in devices) {
-                    url = url + 'sensors=' + devices[i] + '&';
+                    dataUrl = dataUrl + 'sensors=' + devices[i] + '&';
                 }
             }
-            return url;
+            return dataUrl;
         }
 
         $("#submit-btn").click(function () {
@@ -247,7 +246,7 @@
             window.location = getUrl() + 'output=csv';
         });
 
-        dataUrl = 'http://localhost:8000/temperatures/?';
+        var dataUrl = "{% url 'get_sensor_data' %}?";
         drawFlot(dataUrl);
         //drawMorris(dataUrl);
     });

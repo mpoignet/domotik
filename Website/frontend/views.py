@@ -13,9 +13,9 @@ def rooms(request):
     return render(request, 'graphs/rooms.html')
 
 
-def configureRooms(request):
+def configure_rooms(request):
     return render(request, 'graphs/configure-rooms.html')
 
 
-def configureWatchers(request):
+def configure_watchers(request):
     return render(request, 'graphs/configure-watchers.html')

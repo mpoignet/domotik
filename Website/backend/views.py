@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.forms.models import model_to_dict
 import pytz
 
-from temperatures.models import Sensor, Record, Room
+from backend.models import Sensor, Record, Room
 
 
 def get_sensor_list(request):

@@ -68,7 +68,7 @@
 
         function bindOnButton(btn, id) {
             btn.click(function () {
-                $.post('http://localhost:8000/temperatures/rooms/toggle', {id: id})
+                $.post("{% url 'toggle_control' %}", {id: id})
                         .done(function (data) {
                             if (btn.hasClass('btn-success')) {
                                 btn.removeClass('btn-success').addClass('btn-danger').html('<b>OFF</b>');
@@ -82,7 +82,7 @@
 
         function bindMinusButton(btn, id) {
             btn.click(function () {
-                $.post('http://localhost:8000/temperatures/rooms/addToTemperature', {id: id, t: -1})
+                $.post("{% url 'add_to_temperature' %}", {id: id, t: -1})
                         .done(function (data) {
                             btn.parent().find('[name=temperature-label]').text(data + '°C');
                         });
@@ -92,7 +92,7 @@
 
         function bindPlusButton(btn, id) {
             btn.click(function () {
-                $.post('http://localhost:8000/temperatures/rooms/addToTemperature', {id: id, t: 1})
+                $.post("{% url 'add_to_temperature' %}", {id: id, t: 1})
                         .done(function (data) {
                             btn.parent().find('[name=temperature-label]').text(data + '°C');
                         });
@@ -101,7 +101,7 @@
         }
 
         function populateRoomList() {
-            $.getJSON('http://localhost:8000/temperatures/rooms', function (data) {
+            $.getJSON("{% url 'get_rooms' %}", function (data) {
                 var rooms = data.rooms;
                 var rows = [];
                 var row = $('<div class="row"></div>');
