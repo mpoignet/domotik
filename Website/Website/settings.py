@@ -60,11 +60,11 @@ WSGI_APPLICATION = 'Website.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'oasis2',
+        'NAME': 'oasis',
         'HOST': 'localhost',
         'PORT': '3306',
         'USER': 'oasis',
-        'PASSWORD': 'oasis' ,
+        'PASSWORD': 'oasis',
     }
 }
 
