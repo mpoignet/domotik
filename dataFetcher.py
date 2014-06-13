@@ -16,7 +16,7 @@ def log(string):
 def getData(serverAdress):
 	return urllib2.urlopen(serverAdress).read()
 
-serverAdress = "http://192.168.2.68:8000/"
+serverAdress = "http://192.168.2.68/"
 
 while(True):
 	# Database connection
@@ -51,7 +51,7 @@ while(True):
 		if(goodReading):
 			# Inserting data into the database
 			try:
-				postUrl = 'http://localhost:8000/backend/records'
+				postUrl = 'http://192.168.2.42:8000/backend/records'
 				for m in measures.keys():
 					values = {'address' : m,
 					          'date' : currentDate,
