@@ -16,7 +16,7 @@ def log(string):
 def getData(serverAdress):
 	return urllib2.urlopen(serverAdress).read()
 
-serverAdress = "http://192.168.2.68/"
+serverAdress = "http://192.168.2.68:8000/"
 
 while(True):
 	# Database connection
@@ -50,19 +50,19 @@ while(True):
 
 		if(goodReading):
 			# Inserting data into the database
-			# try:
-			postUrl = 'http://localhost:8000/backend/records'
-			for m in measures.keys():
-				values = {'address' : m,
-				          'date' : currentDate,
-				          'measure' : measures[m] }
+			try:
+				postUrl = 'http://localhost:8000/backend/records'
+				for m in measures.keys():
+					values = {'address' : m,
+					          'date' : currentDate,
+					          'measure' : measures[m] }
 
-				data = urllib.urlencode(values)
-				req = urllib2.Request(postUrl, data)
-				response = urllib2.urlopen(req)
+					data = urllib.urlencode(values)
+					req = urllib2.Request(postUrl, data)
+					response = urllib2.urlopen(req)
 					
-			# except:
-			# 	log("ERROR: Problem inserting in the database")		
+			except:
+				log("ERROR: Problem inserting in the database")		
 
 			time.sleep(15)				
 
