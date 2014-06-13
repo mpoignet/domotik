@@ -66,7 +66,7 @@
             }
         }
 
-        function bindOnButton(btn, id) {
+        function bindOnButton(btn, roomId) {
             btn.click(function () {
                 $.post("{% url 'toggle_control' %}", {id: id})
                         .done(function (data) {
@@ -102,7 +102,7 @@
 
         function populateRoomList() {
             $.getJSON("{% url 'get_rooms' %}", function (data) {
-                var rooms = data.rooms;
+                var rooms = data;
                 var rows = [];
                 var row = $('<div class="row"></div>');
                 var j = 0;

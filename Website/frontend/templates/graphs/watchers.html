@@ -246,7 +246,7 @@
             window.location = getUrl() + 'output=csv';
         });
 
-        var dataUrl = "{% url 'get_sensor_data' %}?";
+        var dataUrl = "{% url 'handle_records' %}?";
         drawFlot(dataUrl);
         //drawMorris(dataUrl);
     });

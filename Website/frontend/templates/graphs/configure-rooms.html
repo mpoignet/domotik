@@ -48,7 +48,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         function populateSensorList() {
-            $.getJSON("{% url 'get_sensor_list' %}", function (data) {
+            $.getJSON("{% url 'handle_sensor' %}", function (data) {
                 var sensors = data.sensors;
                 for (var i in sensors) {
                     $('#sensor-list').append('<br><input type="radio" name="device" value="' + sensors[i].id + '">' + sensors[i].name);
