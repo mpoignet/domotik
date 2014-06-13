@@ -33,10 +33,12 @@ def create_record(request):
     measure = request.POST.get('measure')
     sensor_address = request.POST.get('address')
 
-    sensor = Sensor.objects.filter(address=sensor_address)[0]
-    if not sensor:
+    sensors = Sensor.objects.filter(address=sensor_address)
+    if not sensors:
         sensor = Sensor(address=sensor_address)
         sensor.save()
+    else:
+        sensor = sensors[0]
 
     record = Record(date=date, measure=measure, sensor_id=sensor.id)
     record.save()
