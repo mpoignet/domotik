@@ -1,4 +1,5 @@
 #!/usr/bin/python -u
+import urllib
 import urllib2
 import json
 import datetime
@@ -15,11 +16,11 @@ def log(string):
 def getData(serverAdress):
 	return urllib2.urlopen(serverAdress).read()
 
-serverAdress = "http://192.168.2.80/"
+serverAdress = "http://192.168.2.68/"
 
 while(True):
 	# Database connection
-	db = MySQLdb.connect(host="localhost", user="oasis", passwd="oasis", db="oasis2") 				  
+	db = MySQLdb.connect(host="localhost", user="oasis", passwd="oasis", db="oasis") 				  
 	cur = db.cursor() 
 	 
 	# Fetching data from arduino
@@ -31,7 +32,7 @@ while(True):
 		log('ERROR: Server is unreachable')
 		time.sleep(15)
 
-
+ 
 	if(jsonContent):
 		try:
 			measures = json.loads(jsonContent)   
@@ -49,26 +50,20 @@ while(True):
 
 		if(goodReading):
 			# Inserting data into the database
-			try:
-				for m in measures.keys():
-					cur.execute("SELECT id FROM temperatures_sensor WHERE address=%s", (m))
-					if(cur.rowcount > 0):
-						result = cur.fetchone()
-						device_id = int(result[0])
-					else:
-						cur.execute("INSERT INTO temperatures_sensor(address) VALUES (%s)", (m))
-						device_id = cur.lastrowid
+			# try:
+			postUrl = 'http://localhost:8000/backend/records'
+			for m in measures.keys():
+				values = {'address' : m,
+				          'date' : currentDate,
+				          'measure' : measures[m] }
 
-					cur.execute("INSERT INTO temperatures_record(date,measure, sensor_id) VALUES (%s,%s,%s)", (currentDate.strftime("%Y-%m-%d %H:%M:%S"), measures[m], device_id))
-				db.commit()
-			except MySQLdb.Error, e:
-			    log("MySQL Error [%d]: %s" % (e.args[0], e.args[1]))
-			    db.rollback()
-			except:
-				log("ERROR: Problem inserting in the database")
-				db.rollback()
-			  
-			db.close()	
+				data = urllib.urlencode(values)
+				req = urllib2.Request(postUrl, data)
+				response = urllib2.urlopen(req)
+					
+			# except:
+			# 	log("ERROR: Problem inserting in the database")		
+
 			time.sleep(15)				
 
 
